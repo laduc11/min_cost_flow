@@ -36,18 +36,49 @@ def have_neg_cycle(G, source, sink):
             print("Graph have negative cycle")
             exit()
 
+# print path after using successive shortest algorithm
+def printPath(flowDict, G):
+    total_cost = 0
+
+    for source, neighbors in flowDict.items():
+        for target, flow in neighbors.items():
+            if flow > 0:
+                path = nx.shortest_path(G, source=source, target=target, weight="weight")
+                path_str = " -> ".join(path)
+                flow_on_path = flow
+                cost_per_flow = G[path[0]][path[1]]["weight"]
+
+                total_cost += flow_on_path * cost_per_flow
+
+                print("__________________________________________________________________")
+                print("Path:", path_str)
+                print("Flow sent on this path:", flow_on_path)
+                print("Cost per flow on this path:", cost_per_flow)
+
+    print("__________________________________________________________________")
+    print("Paths found:")
+    for source, neighbors in flowDict.items():
+        for target, flow in neighbors.items():
+            if flow > 0:
+                path = nx.shortest_path(G, source=source, target=target, weight="weight")
+                path_str = " -> ".join(path)
+                print(path_str)
+
+    print("Total Cost:", total_cost if total_cost != float('inf') else None)
+
 source = []
 sink = []
 G = nx.DiGraph()
 input_graph(G)
 have_neg_cycle(G, source, sink)
+
 position = nx.circular_layout(G)
+
 nx.draw(G, with_labels=True, font_color='red', node_size=800, pos=position)
 nx.draw_networkx_edge_labels(G, pos=position, edge_labels=nx.get_edge_attributes(G, 'weight'))
 flowCost, flowDict = nx.capacity_scaling(G)
 
 # Print result
-print(flowDict)
-print(flowCost)
+printPath(flowDict, G)
 
 mpl.show()
